@@ -9,7 +9,7 @@
 > documentation is accurate and fully applicable — see the Documentation section
 > of `instructions.md` for links.
 
-[MeTube](https://github.com/alexta69/metube) is a web front end for yt-dlp: paste a link, pick a format, and it downloads the video or audio to the server. This package adds the login MeTube does not have, and lets downloads land either on its own volume or inside File Browser.
+[MeTube](https://github.com/alexta69/metube) is a web front end for yt-dlp: paste a link, pick a format, and it downloads the video or audio to the server. This package adds the login MeTube does not have, and lets downloads land either on its own volume or inside FileBrowser Quantum.
 
 - **Upstream repo:** <https://github.com/alexta69/metube>
 - **Wrapper repo:** <https://github.com/Start9-Community/metube-startos>
@@ -79,7 +79,7 @@ One model, three fields.
 
 - **The web UI password**, absent until the action generates it.
 - **The download destination**, `local` or `filebrowser`, defaulting to local so the service works with no setup.
-- **The File Browser subfolder**, kept even while local is selected so switching back restores the previous choice.
+- **The FileBrowser Quantum subfolder**, kept even while local is selected so switching back restores the previous choice.
 
 All three are read reactively, which is what makes the destination switch take effect: changing it restarts the service, re-mounts, and repoints the download path in one step.
 
@@ -89,15 +89,15 @@ MeTube's own settings — formats, naming, post-processing — are its business 
 
 One, optional, and **declared only while it is selected**.
 
-| Dependency   | Required            | Kind     | Mounted                                  | Why                      |
-| ------------ | ------------------- | -------- | ---------------------------------------- | ------------------------ |
-| File Browser | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser` | Downloads land inside it |
+| Dependency          | Required            | Kind     | Mounted                                  | Why                      |
+| ------------------- | ------------------- | -------- | ---------------------------------------- | ------------------------ |
+| FileBrowser Quantum | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser` | Downloads land inside it |
 
-Choosing File Browser as the destination adds the dependency; choosing local removes it again. Nothing is mounted while the destination is local.
+Choosing FileBrowser Quantum as the destination adds the dependency; choosing local removes it again. Nothing is mounted while the destination is local.
 
-**The dependency is `exists`, not `running`.** MeTube writes into File Browser's volume directly, so File Browser only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
+**The dependency is `exists`, not `running`.** MeTube writes into FileBrowser Quantum's volume directly, so FileBrowser Quantum only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
 
-Files are written as the same uid File Browser serves its volume with, so they are readable and manageable there immediately rather than needing an ownership fix.
+Files are written as the same uid FileBrowser Quantum serves its volume with, so they are readable and manageable there immediately rather than needing an ownership fix.
 
 ## Network Access and Interfaces
 
@@ -117,7 +117,7 @@ Install leaves the destination at local and raises a `critical` task to generate
 
 **The service cannot start until that password exists**, which is the point: a `critical` task blocks startup, so there is never a window where MeTube is running and reachable with no credential. The check runs on every init, not just install, so clearing the password re-raises it.
 
-Once the password is set the service starts and downloads work immediately. Switching the destination to File Browser is optional and can be done at any time.
+Once the password is set the service starts and downloads work immediately. Switching the destination to FileBrowser Quantum is optional and can be done at any time.
 
 ## Actions
 
@@ -134,9 +134,9 @@ Generates the basic-auth password and shows it once. The name changes to **Reset
 
 ### Select Download Destination
 
-Chooses between this service's own volume and a folder inside File Browser.
+Chooses between this service's own volume and a folder inside FileBrowser Quantum.
 
-- **What it changes:** the destination, and the subfolder name when File Browser is chosen.
+- **What it changes:** the destination, and the subfolder name when FileBrowser Quantum is chosen.
 - **Cost:** the service restarts and the mount changes.
 - **Repeat safety:** idempotent, and pre-filled with the current choice.
 - **What it does not do:** **move anything.** Files already downloaded stay where they were written; only new downloads follow the new destination.
@@ -165,16 +165,16 @@ It reports that the interface is serving. **It says nothing about downloads**: a
 
 **Only `main` is backed up** — `sdk.Backups.ofVolumes('main')`. That is the queue, the completed history, the password, and the destination choice.
 
-**Downloaded media is deliberately excluded.** A media library is large, and it is re-downloadable by definition; backing it up would make every backup as big as the collection. Anything worth keeping should be moved off this volume — which is what the File Browser destination is for, since those files then live under File Browser's own backup.
+**Downloaded media is deliberately excluded.** A media library is large, and it is re-downloadable by definition; backing it up would make every backup as big as the collection. Anything worth keeping should be moved off this volume — which is what the FileBrowser Quantum destination is for, since those files then live under FileBrowser Quantum's own backup.
 
-A restored instance comes back with the same password, the same destination, and its history intact, pointing at an empty `downloads` volume unless the destination was File Browser.
+A restored instance comes back with the same password, the same destination, and its history intact, pointing at an empty `downloads` volume unless the destination was FileBrowser Quantum.
 
 ## Limitations and Differences
 
 1. **Authentication is the reverse proxy's, not MeTube's.** One shared credential, username always `admin`, password generated rather than chosen.
 2. **Downloaded media is not backed up** when the destination is local.
 3. **Switching destination does not move existing files.**
-4. **The File Browser subfolder is created under File Browser's data volume**, so its contents count against File Browser's backup, not this one.
+4. **The FileBrowser Quantum subfolder is created under FileBrowser Quantum's data volume**, so its contents count against FileBrowser Quantum's backup, not this one.
 5. **MeTube's own settings are not exposed** as actions — formats and naming are set in its interface.
 6. **One destination at a time.** There is no per-download choice.
 

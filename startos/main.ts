@@ -32,8 +32,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
 
   // The directory handed to MeTube as DOWNLOAD_DIR. Local downloads stay on this
-  // service's own `downloads` volume; File Browser downloads go into a subfolder
-  // of File Browser's data volume, mounted read-write here. File Browser serves
+  // service's own `downloads` volume; FileBrowser Quantum downloads go into a subfolder
+  // of FileBrowser Quantum's data volume, mounted read-write here. FileBrowser Quantum serves
   // that volume as uid 1000 — the same uid MeTube's PUID drops to — so files
   // MeTube writes are immediately readable and manageable there.
   let downloadDir = '/downloads'
@@ -64,7 +64,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       runAsInit: true,
       // The image entrypoint creates and chowns DOWNLOAD_DIR/TEMP_DIR/STATE_DIR
       // to PUID:PGID then drops privileges with gosu, so no ownership one-shot is
-      // needed. PUID/PGID = 1000 match File Browser's uid. STATE_DIR is pinned to
+      // needed. PUID/PGID = 1000 match FileBrowser Quantum's uid. STATE_DIR is pinned to
       // the `main` volume (not the image default /downloads/.metube) so MeTube's
       // queue/history are included in backups. PORT pins MeTube's listen port to
       // the interface + health check.
