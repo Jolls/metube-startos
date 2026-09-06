@@ -1,6 +1,6 @@
 export const uiPort = 8081
 
-// Where File Browser's data volume is mounted inside the MeTube container when
+// Where FileBrowser Quantum's data volume is mounted inside the MeTube container when
 // the user routes downloads there (see main.ts + actions/downloadDestination).
 export const filebrowserMountpoint = '/mnt/filebrowser'
 
