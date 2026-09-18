@@ -10,13 +10,27 @@ export const inputSpec = InputSpec.of({
   destination: Value.union({
     name: i18n('Download Destination'),
     description: i18n(
-      'Where MeTube saves downloads. "Local storage" keeps them on this service. "FileBrowser Quantum" writes them into FileBrowser Quantum so you can browse, download, and manage the files there.',
+      'Where MeTube saves downloads. "Local storage" keeps them on this service. "NextExplorer" or "FileBrowser Quantum" writes them into that service so you can browse, download, and manage the files there.',
     ),
     default: 'local',
     variants: Variants.of({
       local: {
         name: i18n('Local storage'),
         spec: InputSpec.of({}),
+      },
+      nextexplorer: {
+        name: i18n('NextExplorer'),
+        spec: InputSpec.of({
+          subfolder: Value.text({
+            name: i18n('NextExplorer Subfolder'),
+            description: i18n(
+              'Folder inside NextExplorer where downloads are saved, starting with the drive name. Created automatically; NextExplorer must be installed.',
+            ),
+            default: 'Files/metube',
+            required: true,
+            placeholder: 'Files/metube',
+          }),
+        }),
       },
       filebrowser: {
         name: i18n('FileBrowser Quantum'),
@@ -44,7 +58,7 @@ export const downloadDestination = sdk.Action.withInput(
   async ({ effects }) => ({
     name: i18n('Select Download Destination'),
     description: i18n(
-      'Choose where MeTube saves downloads — locally, or into FileBrowser Quantum.',
+      'Choose where MeTube saves downloads — locally, or into NextExplorer or FileBrowser Quantum.',
     ),
     warning: null,
     allowedStatuses: 'any',
@@ -64,15 +78,31 @@ export const downloadDestination = sdk.Action.withInput(
     const subfolder =
       (await storeJson.read((s) => s.filebrowserSubpath).const(effects)) ??
       'metube'
+    const nextexplorerSubfolder =
+      (await storeJson.read((s) => s.nextexplorerSubpath).const(effects)) ??
+      'Files/metube'
     return {
       destination:
-        destination === 'filebrowser'
-          ? { selection: 'filebrowser' as const, value: { subfolder } }
-          : {
-              selection: 'local' as const,
-              value: {},
+        destination === 'nextexplorer'
+          ? {
+              selection: 'nextexplorer' as const,
+              value: { subfolder: nextexplorerSubfolder },
               other: { filebrowser: { subfolder } },
-            },
+            }
+          : destination === 'filebrowser'
+            ? {
+                selection: 'filebrowser' as const,
+                value: { subfolder },
+                other: { nextexplorer: { subfolder: nextexplorerSubfolder } },
+              }
+            : {
+                selection: 'local' as const,
+                value: {},
+                other: {
+                  nextexplorer: { subfolder: nextexplorerSubfolder },
+                  filebrowser: { subfolder },
+                },
+              },
     }
   },
 
@@ -82,6 +112,12 @@ export const downloadDestination = sdk.Action.withInput(
   // untouched so it survives a round-trip.
   async ({ effects, input }) => {
     const dest = input.destination
+    if (dest.selection === 'nextexplorer') {
+      return storeJson.merge(effects, {
+        downloadDestination: 'nextexplorer',
+        nextexplorerSubpath: dest.value.subfolder,
+      })
+    }
     if (dest.selection === 'filebrowser') {
       return storeJson.merge(effects, {
         downloadDestination: 'filebrowser',

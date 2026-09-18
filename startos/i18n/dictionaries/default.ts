@@ -13,13 +13,13 @@ const dict = {
 
   // actions/downloadDestination.ts
   'Download Destination': 6,
-  'Where MeTube saves downloads. "Local storage" keeps them on this service. "FileBrowser Quantum" writes them into FileBrowser Quantum so you can browse, download, and manage the files there.': 7,
+  'Where MeTube saves downloads. "Local storage" keeps them on this service. "NextExplorer" or "FileBrowser Quantum" writes them into that service so you can browse, download, and manage the files there.': 7,
   'Local storage': 8,
   'FileBrowser Quantum': 9,
   'FileBrowser Quantum Subfolder': 10,
   'Folder inside FileBrowser Quantum where downloads are saved. Created automatically; FileBrowser Quantum must be installed.': 11,
   'Select Download Destination': 12,
-  'Choose where MeTube saves downloads — locally, or into FileBrowser Quantum.': 13,
+  'Choose where MeTube saves downloads — locally, or into NextExplorer or FileBrowser Quantum.': 13,
 
   // actions/setPassword.ts
   'Set Web UI Password': 14,
@@ -28,6 +28,11 @@ const dict = {
 
   // init/watchPassword.ts
   'Set a password to protect the MeTube web interface': 17,
+
+  // NextExplorer destination
+  NextExplorer: 18,
+  'NextExplorer Subfolder': 19,
+  'Folder inside NextExplorer where downloads are saved, starting with the drive name. Created automatically; NextExplorer must be installed.': 20,
 } as const
 
 /**

@@ -2,6 +2,7 @@ export const uiPort = 8081
 
 // Where FileBrowser Quantum's data volume is mounted inside the MeTube container when
 // the user routes downloads there (see main.ts + actions/downloadDestination).
+export const nextexplorerMountpoint = '/mnt/nextexplorer'
 export const filebrowserMountpoint = '/mnt/filebrowser'
 
 // MeTube has no login of its own, so the StartOS reverse proxy enforces HTTP

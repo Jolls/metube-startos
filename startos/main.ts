@@ -1,8 +1,9 @@
 import { manifest as filebrowserManifest } from 'filebrowser-startos/startos/manifest'
+import { manifest as nextexplorerManifest } from 'nextexplorer-startos/startos/manifest'
 import { storeJson } from './fileModels/store.json'
 import { i18n } from './i18n'
 import { sdk } from './sdk'
-import { filebrowserMountpoint, uiPort } from './utils'
+import { filebrowserMountpoint, nextexplorerMountpoint, uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   console.info(i18n('Starting MeTube'))
@@ -14,6 +15,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   const store = await storeJson.read().const(effects)
   const downloadDestination = store?.downloadDestination
   const filebrowserSubpath = store?.filebrowserSubpath
+  const nextexplorerSubpath = store?.nextexplorerSubpath
 
   let mounts = sdk.Mounts.of()
     // MeTube's queue/history state (STATE_DIR below) + StartOS store.json.
@@ -37,6 +39,19 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // that volume as uid 1000 — the same uid MeTube's PUID drops to — so files
   // MeTube writes are immediately readable and manageable there.
   let downloadDir = '/downloads'
+  if (downloadDestination === 'nextexplorer') {
+    const subfolder =
+      (nextexplorerSubpath ?? 'Files/metube').replace(/^\/+|\/+$/g, '') ||
+      'Files/metube'
+    downloadDir = `${nextexplorerMountpoint}/${subfolder}`
+    mounts = mounts.mountDependency<typeof nextexplorerManifest>({
+      dependencyId: 'nextexplorer',
+      volumeId: 'data',
+      subpath: null,
+      mountpoint: nextexplorerMountpoint,
+      readonly: false,
+    })
+  }
   if (downloadDestination === 'filebrowser') {
     const subfolder =
       (filebrowserSubpath ?? 'metube').replace(/^\/+|\/+$/g, '') || 'metube'

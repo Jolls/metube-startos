@@ -9,6 +9,13 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
 
   const deps: T.CurrentDependenciesResult<any> = {}
 
+  if (downloadDestination === 'nextexplorer') {
+    deps['nextexplorer'] = {
+      kind: 'exists',
+      versionRange: '>=2.2.7:0',
+    }
+  }
+
   if (downloadDestination === 'filebrowser') {
     deps['filebrowser'] = {
       kind: 'exists',
