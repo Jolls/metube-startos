@@ -6,6 +6,19 @@ export const short = {
   fr_FR: 'Téléchargeur de vidéos web pour YouTube et plus',
 }
 
+export const nextexplorerDescription = {
+  en_US:
+    'Optional. Lets MeTube save downloads into NextExplorer so you can browse, download, and manage the files there.',
+  es_ES:
+    'Opcional. Permite que MeTube guarde las descargas en NextExplorer para que puedas explorar, descargar y gestionar los archivos allí.',
+  de_DE:
+    'Optional. Ermöglicht MeTube, Downloads in NextExplorer zu speichern, sodass Sie die Dateien dort durchsuchen, herunterladen und verwalten können.',
+  pl_PL:
+    'Opcjonalne. Pozwala MeTube zapisywać pobrane pliki w NextExplorer, aby można było tam przeglądać, pobierać i zarządzać plikami.',
+  fr_FR:
+    'Facultatif. Permet à MeTube d’enregistrer les téléchargements dans NextExplorer afin de les parcourir, les télécharger et les gérer à cet endroit.',
+}
+
 export const filebrowserDescription = {
   en_US:
     'Optional. Lets MeTube save downloads into FileBrowser Quantum so you can browse, download, and manage the files there.',

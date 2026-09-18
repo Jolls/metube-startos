@@ -1,5 +1,10 @@
 import { setupManifest } from '@start9labs/start-sdk'
-import { filebrowserDescription, long, short } from './i18n'
+import {
+  filebrowserDescription,
+  long,
+  nextexplorerDescription,
+  short,
+} from './i18n'
 
 export const manifest = setupManifest({
   id: 'metube',
@@ -18,6 +23,14 @@ export const manifest = setupManifest({
     },
   },
   dependencies: {
+    nextexplorer: {
+      description: nextexplorerDescription,
+      optional: true,
+      metadata: {
+        title: 'NextExplorer',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/nextexplorer-startos/04f7ecbfc31ad2205e0222dd7568fb881aa06c79/icon.svg',
+      },
+    },
     filebrowser: {
       description: filebrowserDescription,
       optional: true,

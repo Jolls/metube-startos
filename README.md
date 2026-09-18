@@ -78,26 +78,27 @@ One model, three fields.
 | `store.json` | JSON   | Yes — `FileHelper.json` | Actions    |
 
 - **The web UI password**, absent until the action generates it.
-- **The download destination**, `local` or `filebrowser`, defaulting to local so the service works with no setup.
-- **The FileBrowser Quantum subfolder**, kept even while local is selected so switching back restores the previous choice.
+- **The download destination**, `local`, `nextexplorer` or `filebrowser`, defaulting to local so the service works with no setup.
+- **The NextExplorer and FileBrowser Quantum subfolders**, kept even while unselected so switching back restores the previous choice. NextExplorer's starts with the drive name, `Files/metube` by default.
 
-All three are read reactively, which is what makes the destination switch take effect: changing it restarts the service, re-mounts, and repoints the download path in one step.
+All four are read reactively, which is what makes the destination switch take effect: changing it restarts the service, re-mounts, and repoints the download path in one step.
 
 MeTube's own settings — formats, naming, post-processing — are its business and are not modelled here.
 
 ## Dependencies
 
-One, optional, and **declared only while it is selected**.
+Two, both optional, and **declared only while selected**.
 
-| Dependency          | Required            | Kind     | Mounted                                  | Why                      |
-| ------------------- | ------------------- | -------- | ---------------------------------------- | ------------------------ |
-| FileBrowser Quantum | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser` | Downloads land inside it |
+| Dependency          | Required            | Kind     | Mounted                                   | Why                      |
+| ------------------- | ------------------- | -------- | ----------------------------------------- | ------------------------ |
+| NextExplorer        | No — only if chosen | `exists` | `data`, read-write at `/mnt/nextexplorer` | Downloads land inside it |
+| FileBrowser Quantum | No — only if chosen | `exists` | `data`, read-write at `/mnt/filebrowser`  | Downloads land inside it |
 
-Choosing FileBrowser Quantum as the destination adds the dependency; choosing local removes it again. Nothing is mounted while the destination is local.
+Choosing a service as the destination adds its dependency; choosing local removes it again. Nothing is mounted while the destination is local.
 
-**The dependency is `exists`, not `running`.** MeTube writes into FileBrowser Quantum's volume directly, so FileBrowser Quantum only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
+**The dependency is `exists`, not `running`.** MeTube writes into the service's volume directly, so it only has to be installed for the files to land in the right place — it has to be running for anyone to browse them.
 
-Files are written as the same uid FileBrowser Quantum serves its volume with, so they are readable and manageable there immediately rather than needing an ownership fix.
+Files are written as the same uid both services serve their volume with, so they are readable and manageable there immediately rather than needing an ownership fix.
 
 ## Network Access and Interfaces
 
@@ -117,7 +118,7 @@ Install leaves the destination at local and raises a `critical` task to generate
 
 **The service cannot start until that password exists**, which is the point: a `critical` task blocks startup, so there is never a window where MeTube is running and reachable with no credential. The check runs on every init, not just install, so clearing the password re-raises it.
 
-Once the password is set the service starts and downloads work immediately. Switching the destination to FileBrowser Quantum is optional and can be done at any time.
+Once the password is set the service starts and downloads work immediately. Switching the destination to NextExplorer or FileBrowser Quantum is optional and can be done at any time.
 
 ## Actions
 
@@ -134,9 +135,9 @@ Generates the basic-auth password and shows it once. The name changes to **Reset
 
 ### Select Download Destination
 
-Chooses between this service's own volume and a folder inside FileBrowser Quantum.
+Chooses between this service's own volume and a folder inside NextExplorer or FileBrowser Quantum.
 
-- **What it changes:** the destination, and the subfolder name when FileBrowser Quantum is chosen.
+- **What it changes:** the destination, and the subfolder name when a service is chosen.
 - **Cost:** the service restarts and the mount changes.
 - **Repeat safety:** idempotent, and pre-filled with the current choice.
 - **What it does not do:** **move anything.** Files already downloaded stay where they were written; only new downloads follow the new destination.
@@ -165,16 +166,16 @@ It reports that the interface is serving. **It says nothing about downloads**: a
 
 **Only `main` is backed up** — `sdk.Backups.ofVolumes('main')`. That is the queue, the completed history, the password, and the destination choice.
 
-**Downloaded media is deliberately excluded.** A media library is large, and it is re-downloadable by definition; backing it up would make every backup as big as the collection. Anything worth keeping should be moved off this volume — which is what the FileBrowser Quantum destination is for, since those files then live under FileBrowser Quantum's own backup.
+**Downloaded media is deliberately excluded.** A media library is large, and it is re-downloadable by definition; backing it up would make every backup as big as the collection. Anything worth keeping should be moved off this volume — which is what the NextExplorer and FileBrowser Quantum destinations are for, since those files then live under that service's own backup.
 
-A restored instance comes back with the same password, the same destination, and its history intact, pointing at an empty `downloads` volume unless the destination was FileBrowser Quantum.
+A restored instance comes back with the same password, the same destination, and its history intact, pointing at an empty `downloads` volume unless the destination was NextExplorer or FileBrowser Quantum.
 
 ## Limitations and Differences
 
 1. **Authentication is the reverse proxy's, not MeTube's.** One shared credential, username always `admin`, password generated rather than chosen.
 2. **Downloaded media is not backed up** when the destination is local.
 3. **Switching destination does not move existing files.**
-4. **The FileBrowser Quantum subfolder is created under FileBrowser Quantum's data volume**, so its contents count against FileBrowser Quantum's backup, not this one.
+4. **The NextExplorer or FileBrowser Quantum subfolder is created under that service's data volume**, so its contents count against its backup, not this one.
 5. **MeTube's own settings are not exposed** as actions — formats and naming are set in its interface.
 6. **One destination at a time.** There is no per-download choice.
 
@@ -194,7 +195,7 @@ volumes:
   main: /config # queue + history (STATE_DIR) and store.json
   downloads: /downloads # local destination only; not backed up
 file_models:
-  - store.json # uiPassword, downloadDestination, filebrowserSubpath
+  - store.json # uiPassword, downloadDestination, nextexplorerSubpath, filebrowserSubpath
 startos_managed_env_vars:
   - PUID
   - PGID
@@ -203,6 +204,7 @@ startos_managed_env_vars:
   - TEMP_DIR
   - STATE_DIR
 dependencies:
+  - nextexplorer # optional, kind: exists, declared only while it is the destination
   - filebrowser # optional, kind: exists, declared only while it is the destination
 interfaces:
   ui: { type: ui, port: 8081 } # basic auth at the StartOS proxy, user "admin"

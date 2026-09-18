@@ -33,16 +33,19 @@ backups (only MeTube's download queue and history are backed up). You can change
 new downloads go with the **"Select Download Destination"** action:
 
 - **Local storage** (default) — files are kept on the service's `downloads` volume.
-- **FileBrowser Quantum** — files are written into [FileBrowser Quantum](https://github.com/Start9Labs/filebrowser-startos)
-  so you can browse, open, download, and manage them from FileBrowser Quantum's UI.
+- **NextExplorer** (recommended) — files are written into [NextExplorer](https://github.com/Start9Labs/nextexplorer-startos)
+  so you can browse, open, download, and manage them from NextExplorer's UI.
+- **FileBrowser Quantum** — the same, into [FileBrowser Quantum](https://github.com/Start9Labs/filebrowser-quantum-startos).
 
-### Saving downloads into FileBrowser Quantum
+### Saving downloads into NextExplorer or FileBrowser Quantum
 
-1. Install and start **FileBrowser Quantum** first.
+1. Install and start **NextExplorer** or **FileBrowser Quantum** first.
 2. Run the **"Select Download Destination"** action on MeTube.
-3. Choose **FileBrowser Quantum** and (optionally) change the subfolder name (default `metube`).
-4. MeTube now saves into FileBrowser Quantum at that subfolder. The folder appears in
-   FileBrowser Quantum automatically, and new downloads show up there as they complete.
+3. Choose the service and (optionally) change the subfolder. For NextExplorer the subfolder
+   starts with the drive name (default `Files/metube`); for FileBrowser Quantum it is relative
+   to the storage root (default `metube`).
+4. MeTube now saves there at that subfolder. The folder appears in that service
+   automatically, and new downloads show up there as they complete.
 
 To go back, run the action again and choose **Local storage**.
 
@@ -50,16 +53,16 @@ Notes:
 
 - Changing the destination affects **new** downloads only — it does not move files you
   have already downloaded.
-- FileBrowser Quantum is an **optional** dependency: MeTube runs standalone with local storage,
-  and FileBrowser Quantum only becomes required while it is the selected destination. MeTube runs
-  as uid `1000`, the same uid FileBrowser Quantum uses, so files MeTube writes are immediately
-  browsable and manageable in FileBrowser Quantum.
+- NextExplorer and FileBrowser Quantum are **optional** dependencies: MeTube runs standalone
+  with local storage, and a service only becomes required while it is the selected destination.
+  MeTube runs as uid `1000`, the same uid both services use, so files MeTube writes are
+  immediately browsable and manageable there.
 
 ## Important Notes
 
 - **Backups**: MeTube's download **queue and history** are stored on the `main` volume and
   are included in backups. The downloaded **media files** are not backed up — they are
   large and can be re-downloaded. If you want your media included in a wider backup
-  strategy, save downloads into FileBrowser Quantum and back that up.
+  strategy, save downloads into NextExplorer or FileBrowser Quantum and back that up.
 - **Supported sites and formats**: MeTube is a front-end for yt-dlp; the sites, formats,
   and quality options it supports are whatever yt-dlp supports. See the upstream README.

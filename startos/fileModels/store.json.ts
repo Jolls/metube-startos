@@ -8,7 +8,11 @@ import { sdk } from '../sdk'
 // it restarts the service and re-mounts. Defaults to 'local' so MeTube works out
 // of the box with no first-run setup.
 const shape = z.object({
-  downloadDestination: z.enum(['local', 'filebrowser']).catch('local'),
+  downloadDestination: z
+    .enum(['local', 'nextexplorer', 'filebrowser'])
+    .catch('local'),
+  // Subfolder inside NextExplorer's volume, starting with the drive name.
+  nextexplorerSubpath: z.string().catch('Files/metube'),
   // Subfolder inside FileBrowser Quantum's volume to save into (ignored when local).
   filebrowserSubpath: z.string().catch('metube'),
   // Password for the StartOS reverse-proxy basic-auth gate on the web UI. MeTube
